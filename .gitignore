@@ -1,0 +1,12 @@
+# Directories
+Code/.vs/
+Code/bin/
+Code/bin-int/
+
+# Files
+*.users
+Code/devdir/log.txt
+*.sln
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
