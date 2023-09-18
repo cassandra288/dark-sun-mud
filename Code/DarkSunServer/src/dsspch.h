@@ -9,6 +9,9 @@
 #include <pqxx/pqxx>
 
 #include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 
 
 #include "core/log.h"

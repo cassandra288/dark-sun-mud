@@ -20,7 +20,7 @@ namespace dss::gateway
 		m_context.use_certificate_chain_file("cert.pem");
 		m_context.use_private_key_file("key.pem", asio::ssl::context::pem);
 
-		auto new_session = new Session(m_io_context, m_context, std::bind(&Server::handle_disconnect, this, std::placeholders::_1));
+		auto new_session = new Session(m_io_context, m_context, std::bind(&Server::handle_disconnect, this, std::placeholders::_1), std::bind(&Server::handle_ready, this, std::placeholders::_1));
 		m_acceptor.async_accept(new_session->socket(), std::bind(&Server::handle_accept, this, new_session, std::placeholders::_1));
 	}
 
@@ -36,17 +36,16 @@ namespace dss::gateway
 		if (!error)
 		{;
 			new_session->start();
-			m_new_session_callback(*new_session);
 			m_sessions.push_back(new_session);
 			
-			new_session = new Session(m_io_context, m_context, std::bind(&Server::handle_disconnect, this, std::placeholders::_1));
+			new_session = new Session(m_io_context, m_context, std::bind(&Server::handle_disconnect, this, std::placeholders::_1), std::bind(&Server::handle_ready, this, std::placeholders::_1));
 			m_acceptor.async_accept(new_session->socket(), std::bind(&Server::handle_accept, this, new_session, std::placeholders::_1));
 		}
 		else
 		{
 			DSS_GATEWAY_LOG_ERROR("Error accepting connection: {}", error.message());
 			delete new_session;
-			new_session = new Session(m_io_context, m_context, std::bind(&Server::handle_disconnect, this, std::placeholders::_1));
+			new_session = new Session(m_io_context, m_context, std::bind(&Server::handle_disconnect, this, std::placeholders::_1), std::bind(&Server::handle_ready, this, std::placeholders::_1));
 			m_acceptor.async_accept(new_session->socket(), std::bind(&Server::handle_accept, this, new_session, std::placeholders::_1));
 		}
 	}
@@ -58,6 +57,11 @@ namespace dss::gateway
 		{
 			m_sessions.erase(it);
 		}
+	}
+
+	void Server::handle_ready(Session& session)
+	{
+		m_new_session_callback(session);
 	}
 
 	void Server::broadcast_message(std::string message)

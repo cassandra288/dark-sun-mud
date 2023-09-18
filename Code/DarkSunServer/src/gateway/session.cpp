@@ -14,15 +14,21 @@ namespace dss::gateway
 				return false;
 			if (error.category() == asio::error::misc_category && error.value() == asio::error::eof)
 				return false;
+			if (error.category() == asio::error::system_category && error.value() == 1236) // The network connection was aborted by the local system.
+				return false;
 			return true;
 		}
 	}
 
-	Session::Session(asio::io_context& io_service, asio::ssl::context& context, disconnect_callback disconnect_callback)
+	Session::Session(asio::io_context& io_service, asio::ssl::context& context, DisconnectCallback disconnect_callback, ReadyCallback ready_callback)
 		: m_socket(io_service, context)
 		, m_message_callbacks()
+		, m_ready_callback(ready_callback)
 		, m_disconnect_callback(disconnect_callback)
 		, m_buffer()
+		, m_last_message()
+		, m_received_mutex()
+		, m_received_cond()
 	{
 		m_id = generate_id("gses");
 	}
@@ -65,12 +71,20 @@ namespace dss::gateway
 					DSS_GATEWAY_LOG_ERROR("<{}> Send failed: {}:{} ({})", m_id, error.category().name(), error.value(), error.message());
 			});
 	}
+
+	std::string Session::wait_for_message()
+	{
+		std::unique_lock<std::mutex> lock(m_received_mutex);
+		m_received_cond.wait(lock);
+		return m_last_message;
+	}
 	
 	void Session::handle_handshake(asio::error_code const& error)
 	{
 		if (!error)
 		{
 			DSS_GATEWAY_LOG_INFO("<{}> Successful handshake", m_id);
+			m_ready_callback(*this);
 			m_socket.async_read_some(asio::buffer(m_buffer, m_buffer.size()), std::bind(&Session::handle_response, this, std::placeholders::_1, std::placeholders::_2));
 		}
 		else
@@ -86,6 +100,7 @@ namespace dss::gateway
 		if (!error)
 		{
 			std::string str(m_buffer.data(), bytes_transferred);
+
 			int i = str.find("\r\n");
 			while (i != str.npos) {
 				str = str.replace(i, 2, "\n");
@@ -95,6 +110,8 @@ namespace dss::gateway
 				str = str.substr(0, str.size() - 1);
 			}
 
+			m_last_message = str;
+			m_received_cond.notify_all();
 			for (auto& callback : m_message_callbacks)
 			{
 				callback(*this, str);

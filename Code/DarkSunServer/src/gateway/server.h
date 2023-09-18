@@ -23,5 +23,6 @@ namespace dss::gateway
 
 		void handle_accept(Session* new_session, asio::error_code const& error);
 		void handle_disconnect(Session& session);
+		void handle_ready(Session& session);
 	};
 }
