@@ -1,0 +1,3 @@
+cd DarkSunServerDBMigrations
+call python run_migrations.py
+PAUSE

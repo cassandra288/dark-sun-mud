@@ -37,7 +37,18 @@ project "DarkSunServer"
 	links
 	{
 		"libssl.lib",
-		"libcrypto.lib"
+		"libcrypto.lib",
+		"pqxx.lib",
+		"libpq.lib",
+		"libintl.lib",
+	}
+
+	debugenvs
+	{
+		"DB_USERNAME=darksun",
+		"DB_PASSWORD=darksun",
+		"DB_HOST=localhost",
+		"DB_PORT=5432",
 	}
 
 	debugdir "devdir"
@@ -55,16 +66,19 @@ project "DarkSunServer"
 		includedirs
 		{
 			"%{prj.name}/platform-vendor/openssl/windows/include",
+			"%{prj.name}/platform-vendor/libpqxx/windows/include",
 		}
 
 		libdirs
 		{
-			"%{prj.name}/platform-vendor/openssl/windows/lib"
+			"%{prj.name}/platform-vendor/openssl/windows/lib",
+			"%{prj.name}/platform-vendor/libpqxx/windows/lib",
 		}
 		
 		postbuildcommands
 		{
 			("{COPY} platform-vendor/openssl/windows/bin ../bin/" .. outputdir .. "/%{prj.name}"),
+			("{COPY} platform-vendor/libpqxx/windows/bin ../bin/" .. outputdir .. "/%{prj.name}"),
 		}
 
 	filter "configurations:Debug"

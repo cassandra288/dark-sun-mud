@@ -1,5 +1,6 @@
 #include "dsspch.h"
 #include "gateway/server.h"
+#include "core/db.h"
 
 dss::gateway::Server* s;
 
@@ -13,6 +14,8 @@ void on_message(dss::gateway::Session& session, std::string message)
 int main()
 {
 	dss::Log::init();
+
+	dss::db::init(std::getenv("DB_USERNAME"), std::getenv("DB_PASSWORD"), "darksun_server");
 
 	asio::io_service io_service;
 

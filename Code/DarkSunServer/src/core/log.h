@@ -10,9 +10,11 @@ namespace dss
 
 		inline static std::shared_ptr<spdlog::logger>& get_core_logger() { return s_core_logger; }
 		inline static std::shared_ptr<spdlog::logger>& get_gateway_logger() { return s_gateway_logger; }
+		inline static std::shared_ptr<spdlog::logger>& get_database_logger() { return s_database_logger; }
 	private:
 		static std::shared_ptr<spdlog::logger> s_core_logger;
 		static std::shared_ptr<spdlog::logger> s_gateway_logger;
+		static std::shared_ptr<spdlog::logger> s_database_logger;
 	};
 }
 
@@ -29,3 +31,10 @@ namespace dss
 #define DSS_GATEWAY_LOG_WARN(...)     ::dss::Log::get_gateway_logger()->warn(__VA_ARGS__)
 #define DSS_GATEWAY_LOG_ERROR(...)    ::dss::Log::get_gateway_logger()->error(__VA_ARGS__)
 #define DSS_GATEWAY_LOG_CRITICAL(...) ::dss::Log::get_gateway_logger()->critical(__VA_ARGS__)
+
+// Database log macros
+#define DSS_DATABASE_LOG_TRACE(...)    ::dss::Log::get_database_logger()->trace(__VA_ARGS__)
+#define DSS_DATABASE_LOG_INFO(...)     ::dss::Log::get_database_logger()->info(__VA_ARGS__)
+#define DSS_DATABASE_LOG_WARN(...)     ::dss::Log::get_database_logger()->warn(__VA_ARGS__)
+#define DSS_DATABASE_LOG_ERROR(...)    ::dss::Log::get_database_logger()->error(__VA_ARGS__)
+#define DSS_DATABASE_LOG_CRITICAL(...) ::dss::Log::get_database_logger()->critical(__VA_ARGS__)

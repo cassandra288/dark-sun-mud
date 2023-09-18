@@ -6,6 +6,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include <pqxx/pqxx>
+
 #include <iostream>
 
 

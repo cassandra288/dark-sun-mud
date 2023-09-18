@@ -14,6 +14,7 @@ namespace dss
 {
 	std::shared_ptr<spdlog::logger> Log::s_core_logger;
 	std::shared_ptr<spdlog::logger> Log::s_gateway_logger;
+	std::shared_ptr<spdlog::logger> Log::s_database_logger;
 
 	void Log::init()
 	{
@@ -28,5 +29,9 @@ namespace dss
 		s_gateway_logger = std::make_shared<spdlog::logger>("GATEWAY", log_sinks.begin(), log_sinks.end());
 		s_gateway_logger->set_level(LOG_LEVEL);
 		s_gateway_logger->flush_on(spdlog::level::trace);
+
+		s_database_logger = std::make_shared<spdlog::logger>("DATABASE", log_sinks.begin(), log_sinks.end());
+		s_database_logger->set_level(LOG_LEVEL);
+		s_database_logger->flush_on(spdlog::level::trace);
 	}
 }
